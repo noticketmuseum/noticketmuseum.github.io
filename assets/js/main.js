@@ -42,7 +42,7 @@
   });
 })();
 
-// 当時の声：Xの公式埋め込みカルーセル
+// 当時の声：LP独自のカード型カルーセル（外部サービスとは通信しない）
 (function () {
   var root = document.getElementById('voices');
   if (!root) return;
@@ -76,31 +76,4 @@
   track.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
   window.addEventListener('resize', update);
   update();
-
-  // Xの外部スクリプトは、カルーセルが画面に近づいてから読み込む
-  var started = false;
-  function loadEmbeds() {
-    if (started) return;
-    started = true;
-    var s = document.createElement('script');
-    s.src = 'https://platform.twitter.com/widgets.js';
-    s.async = true;
-    s.charset = 'utf-8';
-    s.onload = function () {
-      if (window.twttr && window.twttr.widgets) window.twttr.widgets.load(track).then(function () { window.setTimeout(update, 300); });
-    };
-    // 読み込めない場合は、元投稿へのリンクと案内だけを詰めて表示する
-    function fallback() { if (!track.querySelector('iframe')) root.classList.add('voices--fallback'); }
-    s.onerror = fallback;
-    window.setTimeout(fallback, 10000);
-    document.head.appendChild(s);
-  }
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      if (entries.some(function (e) { return e.isIntersecting; })) { io.disconnect(); loadEmbeds(); }
-    }, { rootMargin: '600px 0px' });
-    io.observe(root);
-  } else {
-    loadEmbeds();
-  }
 })();
